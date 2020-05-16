@@ -5,8 +5,9 @@ from flask_restful import Resource
 from ..schemas.users import UserSchema
 from ..services.db import DbOperations
 
+from bson.objectid import ObjectId
 
-users = mongo.ohio.users
+users = mongo.test_database1.User
 db = DbOperations(collections=users, schema=UserSchema)
 
 
@@ -22,17 +23,17 @@ class UserList(Resource):
 class User(Resource):
     def get(self, user_id):
         return db.find_one(
-            criteria={'user_id': user_id}
+            criteria={'_id': user_id}
         )
 
     def put(self, user_id):
         payload = request.get_json()
         return db.update(
-            criteria={'user_id': user_id},
+            criteria={'_id': user_id},
             updated_value=payload
         )
 
     def delete(self, user_id):
         return db.delete(
-            criteria={'user_id': user_id}
+            criteria={'_id': user_id}
         )

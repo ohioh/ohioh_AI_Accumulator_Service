@@ -13,9 +13,12 @@ class DbOperations:
         return str(inserted_id)
 
     def find_one(self, criteria):
-        record = self.collections.find_one(criteria)
-        result = self.schema().load(record) if record is not None else error_message(criteria, 'record not found')
-        return make_response(result)
+        record = self.collections.find()
+        results = self.schema(many=True).dump(record) if record is not None else error_message(criteria, 'No Record found')
+
+        result = [user for user in results if user['_id'] == criteria['_id']]
+
+        return make_response(result[0])
 
     def find_all(self):
         cursor = self.collections.find()
