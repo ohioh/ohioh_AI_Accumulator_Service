@@ -7,8 +7,12 @@ from ..services.db import DbOperations
 
 from bson.objectid import ObjectId
 
-users = mongo.test_database1.User
-db = DbOperations(collections=users, schema=UserSchema)
+source_data = mongo.test_sourcedb
+
+users = mongo.test_db.user
+
+
+db = DbOperations(collections=[source_data, users], schema=UserSchema)
 
 
 class UserList(Resource):
@@ -27,11 +31,23 @@ class User(Resource):
         )
 
     def put(self, user_id):
-        payload = request.get_json()
-        return db.update(
-            criteria={'_id': user_id},
-            updated_value=payload
-        )
+
+        try:
+            criteria={
+                '_id': ObjectId(user_id)
+            }
+            return db.find_user_sources(criteria)
+
+        except Exception as e:
+            return "Error - %s" % e
+
+            
+
+        # payload = request.get_json()
+        # return db.update(
+        #     criteria={'_id': user_id},
+        #     updated_value=payload
+        # )
 
     def delete(self, user_id):
         return db.delete(
