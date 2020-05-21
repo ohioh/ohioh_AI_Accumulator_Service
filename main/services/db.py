@@ -40,8 +40,7 @@ class DbOperations:
         # if '_id' in list(criteria.keys()):
         criteria = {'_id': str(criteria['_id'])} # Changing ObjectId to regular string
 
-        result = self.collection_users.update_one(criteria, { "$set" : updated_value })
-        print(result)
+        self.collection_users.update_one(criteria, { "$set" : updated_value })
 
     def delete(self, criteria):
         "Deleting one user from database"
@@ -58,7 +57,9 @@ class DbOperations:
             user_json = self.schema().load(user)
 
             self.update(criteria, user_json) # Updating user data from source user tables
-            self.find_bluetooth_data(criteria)
+            result = self.find_bluetooth_data(criteria)
+            
+            return result
         else:
             return "No Match Found"
 
@@ -95,24 +96,35 @@ class DbOperations:
             
             user_id = {"_id": criteria["_id"]}
 
-            #Add location_id to criteria for search
-            criteria = {"location_id": ObjectId(user_json['location_id'])}
+            #Add location_id as criteria to search for location data
+            criteria = {"_id": ObjectId(user_json['location_id'])}
 
-            self.extract_location_data(criteria, user_id)
+            user = self.source_location.find_one(criteria)
+            
+            if user is not None:
+                user['location_id'] = str(user['_id']) # Changing ObjectId to regular string
+                
+                del user['_id']
+
+                user_json = self.schema().dump(user)
+                
+                self.collection_users.update_one(user_id, { "$set" : user_json })
+
+                return "User data accumulated completely"
 
         else:
             return "No User Location Match"
 
 
-    def extract_location_data(self, criteria, user_id):
-        "Querying Location Values from source database"
-        user = self.source_location.find_one(criteria)
+    # def extract_location_data(self, criteria, user_id):
+    #     "Querying Location Values from source database"
+    #     user = self.source_location.find_one(criteria)
         
-        if user is not None:
-            user.update({'location_id': str(user['location_id'])}) # Changing ObjectId to regular string
+    #     if user is not None:
+    #         user.update({'location_id': str(user['location_id'])}) # Changing ObjectId to regular string
             
-            user_json = self.schema().dump(user)
-            self.update(user_id, user_json)
+    #         user_json = self.schema().dump(user)
+    #         self.update(user_id, user_json)
 
-        return "User Information Update Complete"
+    #     return "User Information Update Complete"
         
