@@ -111,6 +111,9 @@ class DbOperations:
                 self.collection_users.update_one(user_id, { "$set" : user_json })
 
                 return "User data accumulated completely"
+            else:
+
+                return "User data accumulated completely but no location data found!"
 
         else:
             return "No User Location Match"
