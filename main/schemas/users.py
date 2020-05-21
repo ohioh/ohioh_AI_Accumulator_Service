@@ -13,13 +13,13 @@ class UserSchema(Schema):
     country=ms_fields.Str()
     is_infected = ms_fields.Bool()
     infection_accuracy = ms_fields.Float()
-    use_privacy_data = ms_fields.Bool()
+    user_privacy_data = ms_fields.Bool()
     tracking_save_duration = ms_fields.Float()
     bluetooth_save_duration = ms_fields.Float()
     data_save_duration = ms_fields.Float()
     phone = ms_fields.Str()
     zip_code = ms_fields.Str()
-    registration_date_time = ms_fields.DateTime(default=datetime.datetime.now())
+    registration_date_time = ms_fields.DateTime()
 
     #BluettihEncouter
     encounter_user_id = ms_fields.Str()
@@ -28,12 +28,12 @@ class UserSchema(Schema):
     #Location
     location_id = ms_fields.Str()
     latitude = ms_fields.Float()
-    departure = ms_fields.Bool(default=False)
+    departure = ms_fields.Bool()
     location_date_time = ms_fields.Date()
     splitted = ms_fields.Bool()
     accuracy = ms_fields.Float()
     location_type = ms_fields.Float()
-    longtitude = ms_fields.Int()
+    longitude = ms_fields.Float()
     speed = ms_fields.Float()
     arrival = ms_fields.Bool()
 

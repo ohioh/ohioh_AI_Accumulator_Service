@@ -7,6 +7,7 @@ from ..services.db import DbOperations
 
 from bson.objectid import ObjectId
 
+
 source_data = mongo.test_sourcedb
 
 users = mongo.test_db.user
@@ -41,13 +42,6 @@ class User(Resource):
         except Exception as e:
             return "Error - %s" % e
 
-            
-
-        # payload = request.get_json()
-        # return db.update(
-        #     criteria={'_id': user_id},
-        #     updated_value=payload
-        # )
 
     def delete(self, user_id):
         return db.delete(

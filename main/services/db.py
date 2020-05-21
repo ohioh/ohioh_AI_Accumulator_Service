@@ -37,10 +37,11 @@ class DbOperations:
 
     def update(self, criteria, updated_value):
         "Updating one user information"
-        if '_id' in list(criteria.keys()):
-            criteria = {'_id': str(criteria['_id'])} # Changing ObjectId to regular string
+        # if '_id' in list(criteria.keys()):
+        criteria = {'_id': str(criteria['_id'])} # Changing ObjectId to regular string
 
-        result = self.collection_users.replace_one(criteria, updated_value, upsert=True).modified_count
+        result = self.collection_users.update_one(criteria, { "$set" : updated_value })
+        print(result)
 
     def delete(self, criteria):
         "Deleting one user from database"
@@ -91,15 +92,19 @@ class DbOperations:
 
             user_json = self.schema().load(user)
             self.update(criteria, user_json)
+            
+            user_id = {"_id": criteria["_id"]}
 
-            criteria = {
-                'location_id': ObjectId(user_json['location_id'])
-            }
-            self.find_target_location(criteria)
+            #Add location_id to criteria for search
+            criteria = {"location_id": ObjectId(user_json['location_id'])}
+
+            self.extract_location_data(criteria, user_id)
+
         else:
             return "No User Location Match"
 
-    def find_target_location(self, criteria):
+
+    def extract_location_data(self, criteria, user_id):
         "Querying Location Values from source database"
         user = self.source_location.find_one(criteria)
         
@@ -107,9 +112,7 @@ class DbOperations:
             user.update({'location_id': str(user['location_id'])}) # Changing ObjectId to regular string
             
             user_json = self.schema().dump(user)
-            self.update(criteria, user_json)
+            self.update(user_id, user_json)
 
-        resp = jsonify("User Information Update Complete")
-        resp.status_code = 200
-        return resp
+        return "User Information Update Complete"
         
