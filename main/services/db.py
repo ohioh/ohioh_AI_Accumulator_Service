@@ -5,12 +5,12 @@ from bson.objectid import ObjectId
 
 class DbOperations:
     def __init__(self, collections, schema):
-        self.source_users = collections[0].user
-        self.source_users_location = collections[0].user_location
-        self.source_location = collections[0].location_lat
-        self.source_bluetooth = collections[0].bluetooth_encounter
+        self.source_users = collections[1].users
+        self.source_users_location = collections[2].user_location
+        self.source_location = collections[3].location_lat
+        self.source_bluetooth = collections[4].bluetootj_encounter
 
-        self.collection_users = collections[1]
+        self.collection_users = collections[0].users
         self.schema = schema
 
     def insert(self, payload):
@@ -118,16 +118,4 @@ class DbOperations:
         else:
             return "No User Location Match"
 
-
-    # def extract_location_data(self, criteria, user_id):
-    #     "Querying Location Values from source database"
-    #     user = self.source_location.find_one(criteria)
-        
-    #     if user is not None:
-    #         user.update({'location_id': str(user['location_id'])}) # Changing ObjectId to regular string
-            
-    #         user_json = self.schema().dump(user)
-    #         self.update(user_id, user_json)
-
-    #     return "User Information Update Complete"
         
