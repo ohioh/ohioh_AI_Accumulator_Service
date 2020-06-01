@@ -6,6 +6,7 @@ export CLUSTER_2=mongodb+srv://ohioh:25i4lEvNrdKNM5IR@cluster2mongodb-0jh1s.mong
 export CLUSTER_3=mongodb+srv://ohioh:uiMyZ79ZBDll3iUS@cluster3mongodb-ui2vl.mongodb.net
 export CLUSTER_4=mongodb+srv://ohioh:qVoRCeNSX0NdSLAN@cluster4mongodb-hybqd.mongodb.net
 
-export FLASK_APP = ohioh_accumulator.py
+export FLASK_APP = wsgi.py
+
 export FLASK_ENV = development
 export FLASK_RUN_PORT = 3400
