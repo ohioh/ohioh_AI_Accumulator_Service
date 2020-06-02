@@ -8,7 +8,7 @@ class DbOperations:
         self.source_users = collections[1].users
         self.source_users_location = collections[2].user_location
         self.source_location = collections[3].location_lat
-        self.source_bluetooth = collections[4].bluetootj_encounter
+        self.source_bluetooth = collections[4].bluetooth_encounter
 
         self.collection_users = collections[0].users
         self.schema = schema
