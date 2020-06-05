@@ -47,7 +47,7 @@ class User(Resource):
 
         try:
             criteria={
-                '_id': ObjectId(user_id)
+                '_id': user_id
             }
             return db.find_user_sources(criteria)
 
