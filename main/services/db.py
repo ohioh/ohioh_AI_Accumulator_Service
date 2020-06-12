@@ -6,13 +6,13 @@ import requests
 
 class DbOperations:
     def __init__(self, collections, schema):
-        # self.source_users = collections[1].users
+        
         self.source_users = requests.get("http://49.12.77.250:3400/ohioh/api/v1/users")
         self.source_users_location = requests.get("http://49.12.73.42:3400/ohioh/api/v1/user-location")
         self.source_location = requests.get("http://49.12.104.245:3400/ohioh/api/v1/location-lat")
         self.source_bluetooth = requests.get("http://49.12.104.168:3400/ohioh/api/v1/bluetooth-encounter")
 
-        self.collection_users = collections[0].users
+        self.collection_users = collections.users
         self.schema = schema
 
     def insert(self, payload):

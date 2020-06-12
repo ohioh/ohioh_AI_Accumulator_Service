@@ -1,6 +1,6 @@
 import json
 from flask import request
-from main import mongo, mongo1, mongo2, mongo3, mongo4
+from main import mongo
 from flask_restful import Resource
 from ..schemas.users import UserSchema
 from ..services.db import DbOperations
@@ -10,20 +10,9 @@ from bson.objectid import ObjectId
 
 users = mongo.ohioh
 
-cluster1 = mongo1.ohioh
-cluster2 = mongo2.ohioh
-cluster3 = mongo3.ohioh
-cluster4 = mongo4.ohioh
-
 
 db = DbOperations(
-    collections=[
-        users,
-        cluster1,
-        cluster2,
-        cluster3,
-        cluster4
-    ],
+    collections=users,
     schema=UserSchema
     )
 
