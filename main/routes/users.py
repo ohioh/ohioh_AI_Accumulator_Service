@@ -4,7 +4,6 @@ from main import mongo
 from flask_restful import Resource
 from ..schemas.users import UserSchema
 from ..services.db import DbOperations
-
 from bson.objectid import ObjectId
 
 
@@ -32,16 +31,23 @@ class User(Resource):
             criteria={'_id': user_id}
         )
 
+    def post(self, user_id):
+        criteria={
+            '_id': user_id
+        }
+        return db.find_user_sources(criteria)        
+
     def put(self, user_id):
 
         try:
-            criteria={
-                '_id': user_id
-            }
-            return db.find_user_sources(criteria)
+            payload = request.get_json()
+            return db.update(
+                criteria = {'_id': user_id},
+                update = payload
+            )
 
-        except Exception as e:
-            return "Error - %s" % e
+        except Exception:
+            return "User not found!"
 
 
     def delete(self, user_id):

@@ -17,8 +17,8 @@ class UserSchema(Schema):
     tracking_save_duration = ms_fields.Float()
     bluetooth_save_duration = ms_fields.Float()
     data_save_duration = ms_fields.Float()
-    phone = ms_fields.Str()
-    zip_code = ms_fields.Str()
+    phone = ms_fields.Int()
+    zip_code = ms_fields.Int()
     registration_date_time = ms_fields.DateTime()
 
     #BluettihEncouter
@@ -29,7 +29,7 @@ class UserSchema(Schema):
     location_id = ms_fields.Str()
     latitude = ms_fields.Float()
     departure = ms_fields.Bool()
-    location_date_time = ms_fields.Date()
+    location_date_time = ms_fields.DateTime()
     splitted = ms_fields.Bool()
     accuracy = ms_fields.Float()
     location_type = ms_fields.Float()
