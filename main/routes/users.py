@@ -31,13 +31,13 @@ class User(Resource):
             criteria={'_id': user_id}
         )
 
-    def post(self, user_id):
+    def put(self, user_id):
         criteria={
             '_id': user_id
         }
         return db.find_user_sources(criteria)        
 
-    def put(self, user_id):
+    def post(self, user_id):
 
         try:
             payload = request.get_json()

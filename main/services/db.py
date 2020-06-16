@@ -2,7 +2,7 @@ from flask import make_response, jsonify
 from main.resources.message_templates import error_message
 from bson.objectid import ObjectId
 import requests
-
+from jsonmerge import merge
 
 class DbOperations:
     def __init__(self, collections, schema):
@@ -34,8 +34,7 @@ class DbOperations:
     def update(self, criteria, update):
         "Updating one user information"
         new_value = { "$set": update }
-        result = self.collection_users.update_one(criteria, new_value, upsert=True).modified_count
-        return result
+        self.collection_users.update_one(criteria, new_value, upsert=True)
 
     def delete(self, criteria):
         "Deleting one user from database"
@@ -44,76 +43,54 @@ class DbOperations:
         return result.deleted_count
 
 
-
     def find_user_sources(self, criteria):
         "Querying user from source users"
         user_id = criteria['_id']
 
+        # Extract from Clusters
         user = requests.get(f"http://49.12.77.250:3400/ohioh/api/v1/users/{user_id}")
-        data = user.json()
+        user_bt = requests.get(f"http://49.12.104.168:3400/ohioh/api/v1/bluetooth-encounter/{user_id}")
+        user_location = requests.get(f"http://49.12.73.42:3400/ohioh/api/v1/user-location/{user_id}")
 
-        try:
-            result = data['message']
+        data1 = user.json()
+        data2 = user_bt.json()
+        data3 = user_location.json()
 
-        except KeyError:
-            import pdb; pdb.set_trace()
-            user_json = self.schema().dump(data)
+        # Renaming data time fields
+        data2['bluetooth_date_time'] = data2['date_time']
+        del data2['date_time']
 
-            self.update(criteria, user_json)
+        data3['location_date_time'] = data3['date_time']
+        del data3['date_time']
 
-            result = self.find_bluetooth_data(criteria)
+        #merging
+        result1 = merge(data1, data2)
+        result2 = merge(result1, data3)
+
+        location_id = data3['location_id']
         
-        return result
+        location_data = self.find_location_data(location_id)
 
-    def find_bluetooth_data(self, criteria):
-        "Querying user data from source user bluetooth encounter table"
-        user_id = criteria['_id']
-
-        user = requests.get(f"http://49.12.104.168:3400/ohioh/api/v1/bluetooth-encounter/{user_id}")
-        data = user.json()
+        result = merge(result2, location_data)
 
         try:
-            result = data['message']
+            return data1['message']
 
         except KeyError:
-            user_json = self.schema().dump(data)
-
-            self.update(criteria, user_json)
-        
-        self.find_user_location_data(criteria)
-
-
-    def find_user_location_data(self, criteria):
-        "Querying user location data from source database"
-        user_id = criteria['_id']
-
-        user = requests.get(f"http://49.12.73.42:3400/ohioh/api/v1/user-location/{user_id}")
-        data = user.json()
-
-        try:
-            return "User data accumulated completely, but no location data found!"
-
-        except KeyError:
-            user_json = self.schema().dump(data)
+            # import pdb; pdb.set_trace()
+            user_json = self.schema().load(result)
 
             self.update(criteria, user_json)
 
-            #Add location_id as criteria to search for location data
-            criteria = {"location_id": data['location_id']}
+            return "User data uploaded to Accumulator successfully!"
 
-            self.find_location_data(criteria)
 
-    def find_location_data(self, criteria):
+    def find_location_data(self, location_id):
         "Querying all the location data attached to this user"
-        location_id = criteria['location_id']
 
-        user = request.get(f"http://49.12.104.245:3400/ohioh/api/v1/location-lat/{location_id}")
+        user = requests.get(f"http://49.12.104.245:3400/ohioh/api/v1/location-lat/{location_id}")
         data = user.json()
 
-        user_json = self.schema().dump(data)
-                
-        self.update(criteria, user_json)
-
-        return "User data accumulated completely"
+        return data
 
         
