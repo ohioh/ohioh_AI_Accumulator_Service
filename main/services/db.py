@@ -48,33 +48,19 @@ class DbOperations:
         user_id = criteria['_id']
 
         # Extract from Clusters
-        user = requests.get(f"http://49.12.77.250:3400/ohioh/api/v1/users/{user_id}")
-        user_bt = requests.get(f"http://49.12.104.168:3400/ohioh/api/v1/bluetooth-encounter/{user_id}")
-        user_location = requests.get(f"http://49.12.73.42:3400/ohioh/api/v1/user-location/{user_id}")
-
-        data1 = user.json()
-        data2 = user_bt.json()
-        data3 = user_location.json()
-
-        # Renaming data time fields
-        data2['bluetooth_date_time'] = data2['date_time']
-        del data2['date_time']
-
-        data3['location_date_time'] = data3['date_time']
-        del data3['date_time']
+        user_data = self.find_user_data(user_id)
+        bluetooth_data = self.find_bluetooth_data(user_id)
+        user_location_data = self.find_user_location_data(user_id)
+        location_data = self.find_location_data(user_id)
 
         #merging
-        result1 = merge(data1, data2)
-        result2 = merge(result1, data3)
-
-        location_id = data3['location_id']
-        
-        location_data = self.find_location_data(location_id)
+        result1 = merge(user_data, bluetooth_data)
+        result2 = merge(result1, user_location_data)
 
         result = merge(result2, location_data)
 
         try:
-            return data1['message']
+            return user_data['message']
 
         except KeyError:
             # import pdb; pdb.set_trace()
@@ -84,12 +70,42 @@ class DbOperations:
 
             return "User data uploaded to Accumulator successfully!"
 
+    def find_user_data(self, user_id):
+        "Querying all user data from Cluster 1"
+        user = requests.get(f"http://49.12.77.250:3400/ohioh/api/v1/users/{user_id}")
+        data = user.json()
 
-    def find_location_data(self, location_id):
+        return data
+
+    def find_bluetooth_data(self, user_id):
+        "Querying all user data from Cluster 2"
+        user = requests.get(f"http://49.12.104.168:3400/ohioh/api/v1/bluetooth-encounter/{user_id}")
+        data = user.json()
+
+        # Renaming data time fields
+        data['bluetooth_timestamp'] = data['user_timestamp']
+        del data['user_timestamp']
+
+        return data
+
+    def find_user_location_data(self, user_id):
+        "Querying all user data from Cluster 2"
+        user = requests.get(f"http://49.12.73.42:3400/ohioh/api/v1/user-location/{user_id}")
+        data = user.json()
+
+        data['user_location_timestamp'] = data['user_timestamp']
+        del data['user_timestamp']
+
+        return data
+
+    def find_location_data(self, user_id):
         "Querying all the location data attached to this user"
 
-        user = requests.get(f"http://49.12.104.245:3400/ohioh/api/v1/location-lat/{location_id}")
+        user = requests.get(f"http://49.12.104.245:3400/ohioh/api/v1/location-lat/{user_id}")
         data = user.json()
+
+        data['location_timestamp'] = data['user_timestamp']
+        del data['user_timestamp']
 
         return data
 
